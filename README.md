@@ -1,6 +1,6 @@
 # JLBinder
 ## Javascript Easy Binding By Jquery
-It is an alternative for angular js binding functionlity by jquery
+It is an alternative for angular js binding functionality by jquery
 JLBinder Main focused on manipulating with json data.
 For appending some data inside a grid view or table rows. Follow these steps.
 * First initialize the plugin. - Add data-json attribute for your outer element like below example
@@ -42,6 +42,16 @@ It will fetch json from getcountries and append as rows and its output looks lik
 
 </div>
 ```
+##Functinalities
+* data-json : The Url of json data - Your Json data must be looks like 
+```json
+{ Rows:[Your list array row 1],[Your list array row 2] }
+```
+* data-key : The name of your json variable inside array object
+* data-dateformat : convert your date to any date format as given in here 
+https://msdn.microsoft.com/en-us/library/8kb3ddd4(v=vs.110).aspx
+It support these all date conversion formats. if have any bugs report it.
+
 
 
 
