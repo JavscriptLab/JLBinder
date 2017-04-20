@@ -45,7 +45,7 @@ It will fetch json from getcountries and append as rows and its output looks lik
 ##Functinalities
 * data-json : The Url of json data - Your Json data must be looks like 
 ```json
-{ Rows:[Your list array row 1],[Your list array row 2] }
+{ Rows:[{Key:"Your Key 2",Value:"Your Value 2"}],[{Key:"Your Key 2",Value:"Your Value 2"}] }
 ```
 * data-key : The name of your json variable inside array object
 * data-dateformat : convert your date to any date format as given in here 
