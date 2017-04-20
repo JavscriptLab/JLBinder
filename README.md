@@ -42,7 +42,7 @@ It will fetch json from getcountries and append as rows and its output looks lik
 
 </div>
 ```
-##Functinalities
+## Functionalities
 * data-json : The Url of json data - Your Json data must be looks like 
 ```json
 {  
