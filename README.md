@@ -70,7 +70,7 @@ For Example
 </div>
 ```
 It will add value named attribute for input/ Fill attributes with values
-*data-{your json key here}-inline : add values in your inline attributes content
+* data-{your json key here}-inline : add values in your inline attributes content
 ```html
 <div class="outerlayer" data-json="myjson/getcountries">
 <div class="innerlayer">//This is the repitative layer
@@ -146,5 +146,30 @@ For Example
 <input data-countryId-attr="href" />
 </div>
 </div>
+```
+Events
+* afterappend : This event will triggers after for each data-key or data-{json key}-attr or inline JLBinder selectors after the JLBinder functionality of particular cell.
+For example if you need to convert your value to lower case manually
+```html
+<div class="outerlayer" data-method="post" data-json="myjson/getcountries">
+<div class="innerlayer" data-follow="true">//This is the repitative layer because data-follow attribute here
+<span data-key="countrycode" class="countrycode"></span>
+<span data-key="countryId"></span>
+<span data-key="countryName"></span>
+<a data-countryId-inline="href" href="gotocountry/{countryId}"></a>
+<input data-countryId-attr="href" />
+</div>
+</div>
+```
+```javscript
+$(document).ready(function(){
+$('body').on('afterappend','.countrycode',function(e,value){
+//e=eventd data
+//value= your json value
+/// Your js statement here
+$(this).html(value.toLowerCase());
+
+})
+})
 ```
 
