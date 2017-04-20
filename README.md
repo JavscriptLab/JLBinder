@@ -11,7 +11,7 @@ For appending some data inside a grid view or table rows. Follow these steps.
 <span data-key="countryId"></span>
 <span data-key="countryName"></span>
 <a data-countryId-inline="href" href="gotocountry/{countryId}"></a>
-<input data-countryId-attr="href" />
+<input data-countryId-attr="value" />
 </div>
 </div>
 ```
@@ -45,13 +45,106 @@ It will fetch json from getcountries and append as rows and its output looks lik
 ##Functinalities
 * data-json : The Url of json data - Your Json data must be looks like 
 ```json
-{ Rows:[{Key:"Your Key 2",Value:"Your Value 2"}],[{Key:"Your Key 2",Value:"Your Value 2"}] }
+{  
+   "Rows":[  
+      {  
+         "Key":"Your Key 2",
+         "Value":"Your Value 2"
+      },
+      {  
+         "Key":"Your Key 2",
+         "Value":"Your Value 2"
+      }
+   ]
+}
 ```
 * data-key : The name of your json variable inside array object
+* data-{your json key here}-attr : For adding a json value inside your attribute
+For Example 
+```html
+<div class="outerlayer" data-json="myjson/getcountries">
+<div class="innerlayer">//This is the repitative layer
+<span data-key="countrycode"></span>
+<input data-countryId-attr="value" />
+</div>
+</div>
+```
+It will add value named attribute for input/ Fill attributes with values
+*data-{your json key here}-inline : add values in your inline attributes content
+```html
+<div class="outerlayer" data-json="myjson/getcountries">
+<div class="innerlayer">//This is the repitative layer
+<span data-key="countrycode"></span>
+<a data-countryId-inline="href" href="gotocountry/{countryId}"></a>
+</div>
+</div>
+```
+It will add country id inside href value after slash inside curely brackets
+curely bracket is must to represent json key
+
 * data-dateformat : convert your date to any date format as given in here 
+eg:"dd-MM-yyyy"
+* 
 https://msdn.microsoft.com/en-us/library/8kb3ddd4(v=vs.110).aspx
 It support these all date conversion formats. if have any bugs report it.
-
-
-
+* data-filterby : It must be a form or input selectors seperated by comma looks like
+eg: data-filterby="#YourformId,.Textboxclass,#TextboxID,[select]"
+* data-filterby-required : It must be a form or input selectors seperated by comma looks like. It have the same functionlity like data-filterby, the difference is all of the selectors given in here are required to bind data from json
+eg: data-filterby="#YourformId,.Textboxclass,#TextboxID,[select]"
+* data-noresult : If no result in json this element will show 
+For Example
+```html
+<div class="outerlayer" data-json="myjson/getcountries">
+<div class="innerlayer">//This is the repitative layer
+<span data-key="countrycode"></span>
+<span data-key="countryId"></span>
+<span data-key="countryName"></span>
+<a data-countryId-inline="href" href="gotocountry/{countryId}"></a>
+<input data-countryId-attr="href" />
+</div>
+<div data-noresult="true">No Results Found</div>
+</div>
+```
+* data-static : If you need to show one row as static/ No change you can chose it
+For Example
+```html
+<div class="outerlayer" data-json="myjson/getcountries">
+<div class="innerlayer">//This is the repitative layer
+<span data-key="countrycode"></span>
+<span data-key="countryId"></span>
+<span data-key="countryName"></span>
+<a data-countryId-inline="href" href="gotocountry/{countryId}"></a>
+<input data-countryId-attr="href" />
+</div>
+<div data-static="true">Total Count:90</div>
+</div>
+```
+* data-follow : By Default JLBinder chose first row as the template row. But you need to assign any other row as template row just add "data-follow" attribute for that element.
+For Example
+```html
+<div class="outerlayer" data-json="myjson/getcountries">
+<div class="innerlayer">My Blank Layer</div>
+<div data-static="true">Total Count:90</div>
+<div class="innerlayer" data-follow="true">//This is the repitative layer because data-follow attribute here
+<span data-key="countrycode"></span>
+<span data-key="countryId"></span>
+<span data-key="countryName"></span>
+<a data-countryId-inline="href" href="gotocountry/{countryId}"></a>
+<input data-countryId-attr="href" />
+</div>
+</div>
+```
+* data-method : The method for sending server request "Post/Get"
+For Example
+```html
+<div class="outerlayer" data-method="post" data-json="myjson/getcountries">
+<div class="innerlayer" data-follow="true">//This is the repitative layer because data-follow attribute here
+<span data-key="countrycode"></span>
+<span data-key="countryId"></span>
+<span data-key="countryName"></span>
+<a data-countryId-inline="href" href="gotocountry/{countryId}"></a>
+<input data-countryId-attr="href" />
+</div>
+</div>
+```
 
