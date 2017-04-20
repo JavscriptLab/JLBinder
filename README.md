@@ -84,7 +84,6 @@ curely bracket is must to represent json key
 
 * data-dateformat : convert your date to any date format as given in here 
 eg:"dd-MM-yyyy"
-* 
 https://msdn.microsoft.com/en-us/library/8kb3ddd4(v=vs.110).aspx
 It support these all date conversion formats. if have any bugs report it.
 * data-filterby : It must be a form or input selectors seperated by comma looks like
@@ -147,7 +146,7 @@ For Example
 </div>
 </div>
 ```
-Events
+## Events
 * afterappend : This event will triggers after for each data-key or data-{json key}-attr or inline JLBinder selectors after the JLBinder functionality of particular cell.
 For example if you need to convert your value to lower case manually
 ```html
