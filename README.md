@@ -147,6 +147,7 @@ For Example
 </div>
 ```
 ## Events
+* beforeappend : This event will triggers before for each data-key or data-{json key}-attr or inline JLBinder selectors before the JLBinder functionality of particular cell.
 * afterappend : This event will triggers after for each data-key or data-{json key}-attr or inline JLBinder selectors after the JLBinder functionality of particular cell.
 For example if you need to convert your value to lower case manually
 ```html
@@ -171,4 +172,8 @@ $(this).html(obj.value.toLowerCase());
 })
 })
 ```
+* beforeappendrow : This event will triggers before append each rows.
+* afterappendrow : This event will triggers after append each rows.
+* beforeappendcomplete : This event will triggers before start binding after json request.
+* afterappendcomplete : This event will triggers after complete bindings.
 
