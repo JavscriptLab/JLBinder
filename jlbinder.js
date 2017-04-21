@@ -136,7 +136,7 @@ $.fn.binder.methods = {
                 rows: data,
                 template: crow
             };
-            obj.trigger("beforeappendcomplete", triggerdataall);
+            t.trigger("beforeappendcomplete", triggerdataall);
             if (rows.length > 0) {
                 $.each(rows,
                     function(rowindex, rowobject) {
@@ -144,7 +144,7 @@ $.fn.binder.methods = {
                             key: rowindex,
                             value: rowobject
                         };
-                        obj.trigger("beforeappendrow", triggerdatarow);
+                        t.trigger("beforeappendrow", triggerdatarow);
                         $.each(rowobject,
                             function(key, value) {
                                 var obj = crow.find("." + key + ",#" + key + ",[name='" + key + "'],[data-key='" + key +
@@ -188,12 +188,12 @@ $.fn.binder.methods = {
                             value: rowobject,
                             row: lastrow
                         };
-                        obj.trigger("afterappendrow", triggerdatarow);
+                        lastrow.trigger("afterappendrow", triggerdatarow);
                     });
             } else {
                 t.find("[" + kv.data_noresult + "]").show();
             }
-            obj.trigger("afterappendcomplete", triggerdata);
+            t.trigger("afterappendcomplete", triggerdata);
         }
     }
 };
