@@ -162,9 +162,9 @@ For example if you need to convert your value to lower case manually
 ```
 ```javscript
 $(document).ready(function(){
-$('body').on('afterappend','.countrycode',function(e,value){
+$('body').on('afterappend','.countrycode',function(e,obj){
 //e=eventd data
-//value= your json value
+//obj= your json value and key
 /// Your js statement here
 $(this).html(value.toLowerCase());
 
