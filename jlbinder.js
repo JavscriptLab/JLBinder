@@ -22,55 +22,22 @@ $.fn.binder = function(opt) {
     }
     var postsinputs = t.attr(kv.data_filterby);
     var requiredinputs = t.attr(kv.data_filterby_required);
-    
     var inputsrequired = $(requiredinputs).add($(requiredinputs).find(kv.inputs));
     $("[data-requiredonfilter" + tid + "]").removeAttr("data-requiredonfilter" + tid);
     inputsrequired.attr("data-requiredonfilter" + tid, true);
     var inputs = $(postsinputs).add($(postsinputs).find(kv.inputs)).add(inputsrequired);
     if (!t.attr("data-binderinit")) {
-        var button = inputs.filter(function () {
-            return ($(this).attr("type")&&$(this).attr("type").toLowerCase() == "submit");
+        var button = inputs.filter(function() {
+            return ($(this).attr("type") && $(this).attr("type").toLowerCase() == "submit");
         });
-
-        var reset = inputs.filter(function () {
+        var form = inputs.filter(function() {
+            return ($(this).prop("tagName").toLowerCase() == "form");
+        });
+        var reset = inputs.filter(function() {
             return ($(this).attr("type") && $(this).attr("type").toLowerCase() == "reset");
         });
-        if (button.length == 0) {
-            $("[data-onchangefilter" + tid + "]").removeAttr("data-onchangefilter" + tid);
-            inputs.attr("data-onchangefilter" + tid, "true");
-            $('body').on("change blur", "[data-onchangefilter" + tid + "=true]", function (e) {
-                if ($(this).attr("data-requiredonfilter" + tid) && $(this).val()) {
-                    t.binder();
-                } else if (!$(this).attr("data-requiredonfilter" + tid)) {
-                    t.binder();
-                }
-                
-            });
-
-        }
-    }
-    var post = mt.makepostdata(inputs, kv, mt,t);
-    $.post(stn.json,
-        post,
-        function(data) {
-            mt.success(t, mt, kv,stn, data);
-        });
-    t.attr("data-binderinit", true);
-    return $(this);
-};
-$.fn.binder.methods = {
-    fetchvalue: {
-        radio: function(t) {
-            return $("[name='" + t.attr('name') + "']:checked").val();
-        },
-        checkbox: function(t) {
-            return t.prop('checked');
-        }
-    },
-    makepostdata: function(inputs, kv, mt,t) {
-        var post = {};
-        inputs.not(kv.disabled).each(function () {
-            if ($(this).prop("tagName").toLowerCase() == 'form') {
+        if (form.length > 0) {
+            form.each(function() {
                 if (!$(this).attr('id')) {
                     $(this).attr('id', "Id" + new Date().getTime());
                 }
@@ -89,64 +56,126 @@ $.fn.binder.methods = {
                             }
                         });
                 }
-            } else {
-                var tagtype = $(this).attr('type');
-                var name = $(this).attr('name');
-                if (name) {
-                    if (mt.fetchvalue[tagtype]) {
-                        post[name] = mt.fetchvalue[tagtype]($(this));
-                    } else {
-                        post[name] = $(this).val();
-                    }
+            });
+        }
+        if (button.length == 0) {
+            $("[data-onchangefilter" + tid + "]").removeAttr("data-onchangefilter" + tid);
+            inputs.attr("data-onchangefilter" + tid, "true");
+            $('body').on("change blur",
+                "[data-onchangefilter" + tid + "=true]",
+                function(e) {
+                    t.binder();
+                });
+        }
+    }
+    var valid = true;
+    $("[data-requiredonfilter" + tid + "]").each(function(ri, rv) {
+        if (!$(this).val()) {
+            return valid = false;
+        }
+    });
+    if (valid) {
+        var post = mt.makepostdata(inputs, kv, mt, t);
+        $.post(stn.json,
+            post,
+            function(data) {
+                mt.success(t, mt, kv, stn, data);
+            });
+    } else {
+        mt.success(t, mt, kv, stn, "");
+    }
+    t.attr("data-binderinit", true);
+    return $(this);
+};
+$.fn.binder.methods = {
+    fetchvalue: {
+        radio: function(t) {
+            return $("[name='" + t.attr('name') + "']:checked").val();
+        },
+        checkbox: function(t) {
+            return t.prop('checked');
+        }
+    },
+    makepostdata: function(inputs, kv, mt, t) {
+        var post = {};
+        inputs.not(kv.disabled).each(function() {
+            var tagtype = $(this).attr('type');
+            var name = $(this).attr('name');
+            if ($(this).attr('data-servername')) {
+                name = $(this).attr('data-servername');
+            }
+            if (name) {
+                if (mt.fetchvalue[tagtype]) {
+                    post[name] = mt.fetchvalue[tagtype]($(this));
+                } else {
+                    post[name] = $(this).val();
                 }
             }
         });
         return post;
     },
-    success: function (t, mt, kv,stn, data) {
+    success: function(t, mt, kv, stn, data) {
+        var nochange = "[" + kv.data_follow + "],[" + kv.data_static + "],[" + kv.data_noresult + "]";
+        var rows = data.Data;
+        var ch = t.find("[" + kv.data_follow + "]");
+        ch = ch.add(t.children().not(nochange)).first();
+        var html = ch[0].outerHTML;
+        var parenttag = t.prop("tagName");
+        ch.attr(kv.data_follow, true);
+        var nochangeobj = $(nochange);
+        var dynamicobj = t.children().not(nochange);
+        nochangeobj.hide();
+        $("[" + kv.data_static + "]").show();
+        dynamicobj.remove();
         if (data && data.Data) {
-            var nochange = "[" + kv.data_follow + "],[" + kv.data_static + "],[" + kv.data_noresult + "]";
-           
-            var rows = data.Data;
-            var ch = t.find("[" + kv.data_follow + "]");
-            ch = ch.add(t.children().not(nochange)).first();
-            var html = ch[0].outerHTML;
-            ch.attr(kv.data_follow, true);
-            var nochangeobj = $(nochange);
-            var dynamicobj = t.children().not(nochange);
-            nochangeobj.hide();
-            $("[" + kv.data_static + "]").show();
-            dynamicobj.remove();
-            var crow = $("<div>"+html+"</div>");
-            crow.removeAttr(kv.data_follow);
+            var triggerdata;
+            var triggerdatarow;
+            var crow = $("<" + parenttag + ">" + html + "</" + parenttag + ">");
+            crow.find("[" + kv.data_follow + "]").removeAttr(kv.data_follow);
+            var triggerdataall = {
+                rows: data,
+                template: crow
+            };
+            obj.trigger("beforeappendcomplete", triggerdataall);
             if (rows.length > 0) {
                 $.each(rows,
                     function(rowindex, rowobject) {
-                        
+                        triggerdatarow = {
+                            key: rowindex,
+                            value: rowobject
+                        };
+                        obj.trigger("beforeappendrow", triggerdatarow);
                         $.each(rowobject,
-                            function (key, value) {
-                                var triggerdata = {
+                            function(key, value) {
+                                var obj = crow.find("." + key + ",#" + key + ",[name='" + key + "'],[data-key='" + key +
+                                    "'],[data-jsonkey='" + key + "'],[data-" + key.toLowerCase() + "-attr]");
+                                triggerdata = {
                                     key: key,
                                     value: value
                                 };
-                                var obj = crow.find("." + key + ",#" + key + ",[name='" + key + "'],[data-key='" + key + "'],[data-jsonkey='" + key + "'],[data-" + key.toLowerCase() + "-attr]");
-                               
                                 obj.trigger("beforeappend", triggerdata);
                                 $.each(obj.data(),
                                     function(ob, obv) {
                                         if (mt[ob]) {
                                             value = mt[ob](key, value, obv);
                                         }
-                                        if (ob== (key.toLowerCase() + "Attr")) {
-                                            var keyname = obj.attr("data-" + key.toLowerCase() + "-attr");
-                                            obj.attr(keyname,value);
+                                        var keyname;
+                                        if (ob == (key.toLowerCase() + "Attr")) {
+                                            keyname = obj.attr("data-" + key.toLowerCase() + "-attr");
+                                            obj.attr(keyname, value);
+                                        }
+                                        if (ob == (key.toLowerCase() + "Inline")) {
+                                            keyname = obj.attr("data-" + key.toLowerCase() + "-inline");
+                                            var replace = "{" + key + "}";
+                                            var re = new RegExp(replace, "g");
+                                            obj.attr(keyname, obj.attr(keyname).replace(re, value));
                                         }
                                     });
                                 if (obj.attr('data-key') || obj.attr('data-jsonkey')) {
                                     obj.html(value);
                                 }
                                 triggerdata = {
-                                    key: key,
+                                    index: key,
                                     value: value
                                 };
                                 obj.trigger("afterappend", triggerdata);
@@ -154,10 +183,17 @@ $.fn.binder.methods = {
                         t.append(crow.html());
                         var lastrow = t.children().last();
                         lastrow.show();
+                        triggerdatarow = {
+                            key: rowindex,
+                            value: rowobject,
+                            row: lastrow
+                        };
+                        obj.trigger("afterappendrow", triggerdatarow);
                     });
             } else {
                 t.find("[" + kv.data_noresult + "]").show();
             }
+            obj.trigger("afterappendcomplete", triggerdata);
         }
     }
 };
