@@ -166,7 +166,7 @@ $('body').on('afterappend','.countrycode',function(e,obj){
 //e=eventd data
 //obj= your json value and key
 /// Your js statement here
-$(this).html(value.toLowerCase());
+$(this).html(obj.value.toLowerCase());
 
 })
 })
