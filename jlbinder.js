@@ -1041,11 +1041,20 @@ bindmanager.htmltemplates = {};
                 var html = templatedetailsobj.html;
                 //ch.attr(kv.data_follow, true);
                 var parenttag = t.prop("tagName").toLowerCase();
+                /**
+                 * Following elements excluded from current binding
+                 * inner [data-json] elements,[data-subjson] elements,[data-static-free] elements
+                 * [data-static-free] elements only using for [data-static] elements and if not used it binder will show static elemetns before bind results.
+                 */
                 var excludedelements = t.find("[data-json],[data-subjson]").find(templatedetailsobj.nochange);
                 var nochangeobj = t.find(templatedetailsobj.nochange).not(excludedelements);
                 var dynamicobj = templatedetailsobj.nochangedchildrens;
                 nochangeobj.hide();
-                t.find("[" + this.data.data_static + "]").not(excludedelements).show();
+                /**
+                 * Show all static elements before binding results
+                 * To avoid show static elements use data-static-free="true" attribute in static element
+                 */
+                t.find("[" + this.data.data_static + "]:not([data-static-free])").not(excludedelements).show();
                 var followedelements = t.find("[" + this.data.data_follow + "]").not(excludedelements);
                 if (followedelements.length > 1) {
                     followedelements.show();
