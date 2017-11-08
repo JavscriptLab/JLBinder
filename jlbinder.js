@@ -37,7 +37,15 @@ bindmanager.cache = {};
  * @var {Object} bindmanager.htmltemplates 
  */
 bindmanager.htmltemplates = {};
-
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function (str) {
+        if (this.indexOf(str) === 0) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+}
 (/**
   * Detect jquery is loaded or not. 
   * if 'jQuery' object is not allowed first load jquery script page,
@@ -638,6 +646,7 @@ bindmanager.htmltemplates = {};
                         }
                     });
                     if (valid) {
+                        
                         if (typeof stn.json == "string" && stn.json != "") {
                             var post = this.makepostdata(inputs);
                             var method = "post";
@@ -654,7 +663,7 @@ bindmanager.htmltemplates = {};
                                         if (!stn.refresh &&
                                             bindmanager.cache[uniquepost] &&
                                             bindmanager.cache[uniquepost] !== "") {
-                                            var data = bindmanager.cache[uniquepost];
+                                            var data = $.extend({}, bindmanager.cache[uniquepost]);
                                             mt.triggerevent(t, "afterrequest", data);
                                             mt.success(t, stn, data, tid);
                                             return true;
@@ -665,7 +674,7 @@ bindmanager.htmltemplates = {};
                                 },
                                 function (data) {
                                     if (caching) {
-                                        bindmanager.cache[uniquepost] = data;
+                                        bindmanager.cache[uniquepost] = $.extend({}, data);
                                     }
                                     mt.triggerevent(t, "afterrequest", data);
                                     mt.success(t, stn, data, tid);
@@ -1021,6 +1030,7 @@ bindmanager.htmltemplates = {};
                     : tobj.attr(mainkey + "-" + subkey + "-" + key.toLowerCase());
             },
             success: function (t, stn, data, tid) {
+            
                 //Notify element that got result from server
                 t.attr("data-bindersuccess", true);
                 var triggerdataall = {
