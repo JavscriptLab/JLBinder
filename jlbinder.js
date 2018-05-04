@@ -167,6 +167,10 @@ if (!String.prototype.startsWith) {
                         });
                 }
                 return obj;
+            },
+            updatepage: function (t,pagenumber) {
+                
+                return obj;
             }
         };
         jf.setevent = function(key, value, permanent) {
@@ -929,8 +933,8 @@ if (!String.prototype.startsWith) {
                         if (!$(this).attr("id")) {
                             $(this).attr("id", "Id" + new Date().getTime());
                         }
-                        if (!$(this).attr("data-submiteventinit")) {
-                            $(this).attr("data-submiteventinit", true);
+                        if (!$(this).attr("data-submiteventinitfor" + stn.tid)) {
+                            $(this).attr("data-submiteventinitfor" + stn.tid, true);
                             $("body").on("submit",
                                 "#" + $(this).attr("id"),
                                 function(e) {
@@ -1460,7 +1464,8 @@ if (!String.prototype.startsWith) {
 
                 t.attr("data-binderscrollloaderinit", true);
                 pageinputid = "input_scroller_" + stn.tid;
-                if ($("#" + pageinputid).length == 0) {
+                var scrollerpageinput = $("#" + pageinputid);
+                if (scrollerpageinput.length == 0) {
                     $("body").append('<input type="hidden" id="' +
                         pageinputid +
                         '" name="' +
@@ -1468,9 +1473,10 @@ if (!String.prototype.startsWith) {
                         '"  value="' +
                         stn.pagestartswith +
                         '" />');
+                    scrollerpageinput = $("#" + pageinputid);
                 }
                 t.attr(this.data.data_filterby, t.attr(this.data.data_filterby) + ",#" + pageinputid);
-                var scrollerpageinput = $("#" + pageinputid);
+                
                 inputs = inputs.add(scrollerpageinput);
                 var scrollbyelement = $(window);
                 var isscrollbyelement = false;
@@ -1489,6 +1495,7 @@ if (!String.prototype.startsWith) {
 
                 t.attr("data-jlpagecount", parseInt(scrollerpageinput.val()) + 1);
 
+                
                 this.windoworelementevent("scroll",
                     function(e) {
 
@@ -1509,7 +1516,7 @@ if (!String.prototype.startsWith) {
                                         scrollerpageinput.val(parseInt(scrollerpageinput.val()) + 1);
                                         if ($.active == 0) {
                                             t.children(":visible").first().attr("data-jlscrollerhitted", true);
-                                            t.binder();
+                                            t.binder({ currentpage: currentpage });
                                         }
                                     }
                                 }
@@ -1529,9 +1536,10 @@ if (!String.prototype.startsWith) {
                                     currentpage = parseInt(scrollerpageinput.val());
                                     if (top > childtop && currentpage < parseInt(t.attr("data-jlpagecount"))) {
                                         scrollerpageinput.val(parseInt(scrollerpageinput.val()) + 1);
+                                        currentpage = scrollerpageinput.val();
                                         if ($.active == 0) {
                                             t.children(":visible").last().attr("data-jlscrollerhitted", true);
-                                            t.binder();
+                                            t.binder({ currentpage: currentpage });
                                         }
                                     }
                                 }
@@ -1680,9 +1688,12 @@ if (!String.prototype.startsWith) {
                     if (!t.attr("data-binderpaginationinit") && stn.pagination) {
                         inputs = this.initializepagination(t, stn, inputs, pageinputid);
                     }
+                   
+                    if (stn.pagestartswith || stn.currentpage) {
+                        stn.currentpage = parseInt((stn.currentpage) ? stn.currentpage : stn.pagestartswith);
+                    }
                     var paginationt;
                     if (stn.scrollloader && stn.pagination) {
-
                         paginationt = $(stn.pagination);
                         pageinputid = "input_" + paginationt.attr("id");
                         pageinput = $("#" + pageinputid).prop("disabled", true);
@@ -1696,8 +1707,28 @@ if (!String.prototype.startsWith) {
                             pageinputid = "input_" + paginationt.attr("id");
                             pageinput = $("#" + pageinputid).prop("disabled", false);
                         }
+                        
                     }
+                    
                     if (!t.attr("data-binderinit")) {
+                        if (stn.uniquekey && pageinput) {
+                            this.bodyevent("jlupdatepage jlupdaterow",
+                                "#"+stn.tid+" [data-jlcurrentpage]",
+                                function () {
+                                    
+                                    if (stn.caching) {
+                                        t.removeAttr("data-caching");
+                                    }
+                                    var currentpageinputvalue = pageinput.val();
+                                    pageinput.val($(this).attr("data-jlcurrentpage"));
+                                    t.binder();
+                                    pageinput.val(currentpageinputvalue);
+                                    if (stn.caching) {
+                                        t.attr("data-caching", stn.caching);
+                                    }
+                                });
+
+                        }
                         this.setfilters(t, stn, inputs);
                     }
                     var valid = this.validaterequiredfilters(stn.tid);
@@ -1864,7 +1895,7 @@ if (!String.prototype.startsWith) {
                         pagestartswith = parseInt(t.attr("data-pagestartswith"));
                     }
                     var isbindingfreshdata = false;
-                    if (!stn.uniquekey) {
+                    
                         if (!stn.scrollloader) {
                             if (!stn.pagination && stn.dynamicinsert) {
                                 t.find("[data-dynamicrows]").not(excludedelements).remove();
@@ -1873,19 +1904,22 @@ if (!String.prototype.startsWith) {
                                 isbindingfreshdata = true;
                             }
                         } else {
-                            t.attr("data-jlpagecount", 0);
-                            if ($("#input_scroller_" + this.setid(t)).val() == pagestartswith) {
-                                dynamicobj.remove();
-                                isbindingfreshdata = true;
+                            if (!stn.uniquekey || $("#input_scroller_" + this.setid(t)).val() == pagestartswith) {
+                                t.attr("data-jlpagecount", 0);
+                                if ($("#input_scroller_" + this.setid(t)).val() == pagestartswith) {
+                                    dynamicobj.remove();
+                                    isbindingfreshdata = true;
+                                }
+                            } else {
+                                dynamicobj.attr("data-uniquerowsupdated", false);
                             }
                         }
-                    } else {
-                        dynamicobj.attr("data-uniquerowsvalid", false);
-                    }
+                    
                     var totalrowsperpage = rows ? rows.length : 0;
 
 
                     if (rows && totalrowsperpage != 0) {
+                        
                         var pagevalue;
                         var pageinput;
                         var pagesize;
@@ -1983,7 +2017,7 @@ if (!String.prototype.startsWith) {
                 loopindex,
                 totalrowsperpage,
                 rowindex,
-                rowobject,
+                currentrowobject,
                 foreachi,
                 allowedinputs,
                 excludedelements,
@@ -1993,11 +2027,12 @@ if (!String.prototype.startsWith) {
                 pagesize,
                 pagevalue,
                 isbindingfreshdata) {
+                var rowobject = {};
                 var tempvalue, triggerdatarow, triggerdata;
-                if (typeof rowobject != "object") {
-                    tempvalue = rowobject;
-                    rowobject = {};
-                    rowobject.jlvalue = tempvalue;
+                if (typeof currentrowobject != "object") {
+                    tempvalue = currentrowobject;
+                    currentrowobject = {};
+                    currentrowobject.jlvalue = tempvalue;
                 }
                 if (t.attr(this.data.data_pagination)) {
                     rowobject.pagesize = pagesize;
@@ -2005,6 +2040,7 @@ if (!String.prototype.startsWith) {
                 }
                 rowobject.jlindex = rowindex;
                 rowobject.jlrownumber = loopindex + 1;
+                rowobject = $.extend(rowobject, currentrowobject);
                 triggerdatarow = {
                     key: rowindex,
                     value: rowobject
@@ -2183,6 +2219,7 @@ if (!String.prototype.startsWith) {
                     }
                 };
                 var wrapper = t;
+                var uniquerow;
                 if (staticfollowtemplate.length == 1) {
                 } else if (followhtml.eq(0).length > 0) {
                     followhtml.eq(0).after(template.html());
@@ -2203,12 +2240,16 @@ if (!String.prototype.startsWith) {
                             if (exthtml[0].outerHTML === template.html()) {
                                 exthtml.show();
                             } else {
+                                template.children().attr("data-jluniquekeyvalue", rowobject[stn.uniquekey]);
                                 exthtml.replaceWith(template.html());
+
+                                uniquerow = t.find("[data-jluniquekeyvalue='" + rowobject[stn.uniquekey] + "']");
+                                uniquerow.attr("data-uniquerowsupdated", true);
                             }
                         } else {
                             followedelements.attr("data-jluniquekeyvalue", rowobject[stn.uniquekey]);
                         }
-                        exthtml.attr("data-uniquerowsvalid", true);
+                        exthtml.attr("data-uniquerowsupdated", true);
 
                     }
 
@@ -2239,15 +2280,15 @@ if (!String.prototype.startsWith) {
                         }
 
                     }
+                    if (!uniquerow) {
+                        var templateoutput = template.html();
 
-                    var templateoutput = template.html();
-
-                    if (stn.bindmethod) {
-                        wrapper[stn.bindmethod](templateoutput);
-                    } else {
-                        wrapper.append(templateoutput);
+                        if (stn.bindmethod) {
+                            wrapper[stn.bindmethod](templateoutput);
+                        } else {
+                            wrapper.append(templateoutput);
+                        }
                     }
-
                     if (stn.scrolldirection == "up") {
                         t.attr("data-disablescrollevents", true);
 
@@ -2272,13 +2313,20 @@ if (!String.prototype.startsWith) {
                     this.bringvalues(t);
                 }
                 var lastrow;
+                if (uniquerow && uniquerow.length > 0) {
+                    lastrow = uniquerow;
+                }else
                 if (stn.bindmethod) {
                     lastrow = wrapper.children().first();
                 } else {
 
                     lastrow = wrapper.children().last();
                 }
-
+                
+                if (stn.currentpage) {
+                    lastrow.attr("data-jlcurrentpage", stn.currentpage);
+                }
+                
                 lastrow.not("[data-isactive=false]").show().attr("data-jlelements", true);
                 triggerdatarow = {
                     key: rowindex,
