@@ -305,8 +305,8 @@ if (!String.prototype.startsWith) {
             windowevent: function(events, callback) {
                 $(window).on(events, callback);
             },
-            triggerevent: function(obj, eventname, data, callback) {
-                if (jlbinderwindowloaded) {
+            triggerevent: function (obj, eventname, data, callback, disablejlbinderwindowloaded) {
+                if (jlbinderwindowloaded || disablejlbinderwindowloaded) {
                     obj.trigger(eventname, data);
                 } else {
                     var recursivefunction;
@@ -1777,6 +1777,7 @@ if (!String.prototype.startsWith) {
             processrequest: function(t, stn, inputs, opt) {
                 var mt = this;
                 if (typeof stn.json == "string" && stn.json != "") {
+                    mt.triggerevent(t, "beforemakerequestdata", {},null,true);
                     var post = this.makepostdata(inputs);
                     if (!stn.requestmethod) {
                         stn.requestmethod = stn.defaultrequestmethod;
